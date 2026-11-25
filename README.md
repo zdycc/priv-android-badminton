@@ -12,76 +12,18 @@
 
 ---
 
-## 下载安装
-
-| 项目 | 说明 |
-| --- | --- |
-| 最新版 APK | [GitHub Releases](https://github.com/zdycc/priv-android-badminton/releases/latest) |
-| 系统要求 | Android 7.0（API 24）及以上 |
-| 安装 | 首次安装时允许「未知来源应用」即可 |
-| 校验 | Release 附带 `SHA256SUMS.txt`，可执行 `shasum -a 256 Badminton-*.apk` |
-
----
-
-## 辅助工具：Reqable（Android）
-
-抓取登录参数需要用到 **Reqable**。本项目只涉及 Android 端，下载方式：
-
-| 渠道 | 链接 |
-| --- | --- |
-| Google Play | https://play.google.com/store/apps/details?id=com.reqable.android |
-| arm64 APK（大多数手机） | https://app.reqable.com/download?platform=android&arch=arm64&ext=apk |
-| armeabi-v7a APK（老设备） | https://app.reqable.com/download?platform=android&arch=arm&ext=apk |
-
-> 官网：<https://reqable.com/zh-CN/android/>。免费社区版即可满足抓包需求。
-> Reqable 是第三方软件，与本项目无关联；请从官网或 Google Play 下载，不要使用第三方渠道的安装包。
-
-### 安装并开始抓包
-
-1. 安装并打开 Reqable。
-2. 首次启动会请求 **VPN 权限**（Reqable 通过本地 VPN 捕获流量），选择允许。
-3. 进入「抓包」页，点击开始；在过滤框输入 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
-4. 用系统浏览器打开预约系统并完成登录，正常操作一遍。
-5. 回到 Reqable，在请求列表中查看对应接口的请求头 / 请求体。
-
-### 安装 CA 证书（可选）
-
-本项目的三个参数都来自 **HTTP** 接口，**不安装证书也能抓到**；只有需要查看 HTTPS 登录跳转（如 CAS 登录页）时才需要安装。
-
-1. 在 Reqable 内打开「证书 / 安装证书」，选择 **Android**，按应用内指引导出或保存 CA 证书。
-2. 打开系统设置 → **安全**（部分机型为「安全与隐私」）→ **加密与凭据** → **安装证书** → **CA 证书**。
-3. 选择 Reqable 导出的证书文件，确认安装（需要锁屏密码 / 指纹验证）。
-4. 验证：设置 → 安全 → 加密与凭据 → **信任的凭据** → 切到「**用户**」标签，能看到 Reqable 即可。
-
-不同品牌的路径略有差异，可以直接在设置里搜索「CA 证书」或「安装证书」。
-
-> **注意**
-> - Android 7.0 及以上默认只信任系统证书，普通 App 不一定信任用户安装的证书；Chrome 新版本也可能忽略用户证书。抓不到 HTTPS 时，先确认目标接口本身是不是 HTTP。
-> - 抓包完成后建议删除证书：信任的凭据 → 用户 → Reqable → 删除，避免长期保留降低设备安全性。
-
-### 抓包常见问题
-
-| 现象 | 处理 |
-| --- | --- |
-| 无法开始抓包 | VPN 权限被拒绝，到系统设置中允许 Reqable 使用 VPN |
-| 请求列表为空 | 确认 Reqable 正在运行、过滤条件正确、浏览器流量确实经过 VPN |
-| HTTPS 只显示 CONNECT | 证书未安装或未被信任；本项目主要接口为 HTTP，可先不处理 |
-| 找不到「安装证书」 | 在设置中搜索「CA 证书」「加密与凭据」，或查看 Reqable 应用内指引 |
-
----
-
 ## 功能
 
 **登录与参数**
 
 - 登录凭证（`user-token` 与两个接口参数）保存在本机，一次抓取长期复用。
-- 登录页内置 Reqable 抓包指引，三步填写并自动校验。
+- 登录页内置抓包指引，三步填写并自动校验登录态。
 - 抓包参数不写入代码仓库。
 
 **预约配置**
 
 - 校区、日期、场地号、时段全部点选，自动校验取值范围。
-- 支持「今天 / 明天 / 后天」三个日期，自动计算 07:00:05 的开放时刻。
+- 支持「今天 / 明天 / 后天」，自动计算 07:00:05 的开放时刻。
 - 时段支持 1–2 个，选两个时必须是相邻时段。
 
 **执行与反馈**
@@ -99,7 +41,20 @@
 
 ---
 
+## 下载安装
+
+| 项目 | 说明 |
+| --- | --- |
+| 最新版 APK | [GitHub Releases](https://github.com/zdycc/priv-android-badminton/releases/latest) |
+| 系统要求 | Android 7.0（API 24）及以上 |
+| 安装 | 首次安装时允许「未知来源应用」即可 |
+| 校验 | Release 附带 `SHA256SUMS.txt`，可执行 `shasum -a 256 Badminton-*.apk` |
+
+---
+
 ## 使用流程
+
+整个流程分六步：装应用 → 抓参数 → 登录校验 → 配置 → 等待提交 → 看结果。
 
 ### 1. 安装与权限
 
@@ -110,7 +65,7 @@
 
 ### 2. 获取登录参数
 
-先安装 Reqable（下载地址见上文「辅助工具：Reqable」）。登录需要三个值，全部来自预约系统的真实请求：
+登录需要三个值，全部来自预约系统的真实请求：
 
 | 参数 | 来源 |
 | --- | --- |
@@ -118,18 +73,59 @@
 | 场地参数 | `getVenueLstByStaff` 请求的**请求体**（完整 JSON） |
 | 提交参数 | `submitVenueOrderByStaff` 请求的**请求体**（完整 JSON） |
 
-抓取步骤：
+抓取需要用到 Android 版 **Reqable**，下面按「装工具 → 开始抓包 → 装证书（可选）→ 取值」的顺序说明。
 
-1. **开启开发者模式**：设置 → 关于手机 → 连续点击版本号约 7 次，进入「开发者选项」开启 USB 调试。
-2. **打开预约入口**：用系统浏览器打开预约系统并完成登录。
-3. **配置 Reqable**：手机安装 Reqable → 启动抓包 → 安装并信任证书 → 抓取 HTTPS 流量。
-4. **过滤接口**：在 Reqable 中搜索 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
-5. **取值**：
-   - `getIndexByStaff` → 请求头 → 复制 `user-token` 的值；
-   - `getVenueLstByStaff` → 请求体 → 复制完整 JSON；
-   - `submitVenueOrderByStaff` → 请求体 → 复制完整 JSON。
+#### 2.1 安装 Reqable（Android）
+
+| 渠道 | 链接 |
+| --- | --- |
+| Google Play | <https://play.google.com/store/apps/details?id=com.reqable.android> |
+| arm64 APK（大多数手机） | <https://app.reqable.com/download?platform=android&arch=arm64&ext=apk> |
+| armeabi-v7a APK（老设备） | <https://app.reqable.com/download?platform=android&arch=arm&ext=apk> |
+
+官网：<https://reqable.com/zh-CN/android/>。免费社区版即可满足抓包需求。
+
+> Reqable 是第三方软件，与本项目无关联；请从官网或 Google Play 下载，不要使用第三方渠道的安装包。
+
+#### 2.2 开始抓包
+
+1. 打开 Reqable，首次启动会请求 **VPN 权限**，选择允许。
+2. 进入「抓包」页并开始抓包。
+3. 在过滤框输入 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
+4. 用系统浏览器打开预约系统并完成登录，正常操作一遍。
+5. 回到 Reqable，在请求列表中查看对应接口的请求头 / 请求体。
+
+#### 2.3 安装 CA 证书（可选）
+
+本项目的三个参数都来自 **HTTP** 接口，**不安装证书也能抓到**；只有需要查看 HTTPS 登录跳转（例如 CAS 登录页）时才需要安装。
+
+1. 在 Reqable 内打开「证书 / 安装证书」，选择 **Android**，按应用内指引导出或保存 CA 证书。
+2. 打开系统设置 → **安全**（部分机型为「安全与隐私」）→ **加密与凭据** → **安装证书** → **CA 证书**。
+3. 选择 Reqable 导出的证书文件，确认安装（需要锁屏密码 / 指纹验证）。
+4. 验证：设置 → 安全 → 加密与凭据 → **信任的凭据** → 切到「**用户**」标签，能看到 Reqable 即可。
+
+不同品牌的路径略有差异，可以直接在设置里搜索「CA 证书」或「安装证书」。
+
+> **注意**
+> - Android 7.0 及以上默认只信任系统证书，普通 App 不一定信任用户安装的证书；Chrome 新版本也可能忽略用户证书。
+> - 抓包完成后建议删除证书：信任的凭据 → 用户 → Reqable → 删除，避免长期保留降低设备安全性。
+
+#### 2.4 取三个参数
+
+1. `getIndexByStaff` → **请求头** → 复制 `user-token` 的值；
+2. `getVenueLstByStaff` → **请求体** → 复制完整 JSON；
+3. `submitVenueOrderByStaff` → **请求体** → 复制完整 JSON。
 
 > 登录后不要频繁刷新页面，避免 ticket 失效导致会话不一致。
+
+#### 2.5 抓包常见问题
+
+| 现象 | 处理 |
+| --- | --- |
+| 无法开始抓包 | VPN 权限被拒绝，到系统设置中允许 Reqable 使用 VPN |
+| 请求列表为空 | 确认 Reqable 正在运行、过滤条件正确、浏览器流量确实经过 VPN |
+| HTTPS 只显示 CONNECT | 证书未安装或未被信任；本项目主要接口为 HTTP，可先不处理 |
+| 找不到「安装证书」 | 在设置中搜索「CA 证书」「加密与凭据」，或查看 Reqable 应用内指引 |
 
 ### 3. 登录页填写与校验
 
@@ -215,18 +211,26 @@
 
 ---
 
-## 环境要求
+## 隐私与安全
 
-| 项目 | 要求 |
-| --- | --- |
-| 系统 | Android 7.0（API 24）及以上，targetSdk 34 |
-| 网络 | 可访问预约系统 |
-| 构建 | Android Studio（Ladybug 及以上）或命令行 Gradle；JDK 17 |
-| 抓包（首次） | [Reqable](https://reqable.com/zh-CN/download/) 或同类 HTTPS 抓包工具 |
+- 应用不会上传账号、密码或凭证到任何第三方服务器，所有请求只发往预约系统；
+- `user-token` 与接口参数保存在本机 DataStore，不会提交到仓库；
+- 仓库不包含签名密钥、`local.properties` 或真实登录票据；
+- 抓包参数具有时效性，请勿公开包含 `user-token` 的截图或日志。
 
 ---
 
-## 构建
+## 开发
+
+### 环境要求
+
+| 项目 | 要求 |
+| --- | --- |
+| Android | 7.0（API 24）及以上，targetSdk 34 |
+| 构建 | Android Studio（Ladybug 及以上）或命令行 Gradle；JDK 17 |
+| 抓包（首次） | Android 版 Reqable（见「2.1」） |
+
+### 构建
 
 ```bash
 git clone https://github.com/zdycc/priv-android-badminton.git
@@ -251,9 +255,7 @@ sdk.dir=/Users/<你>/Library/Android/sdk
 
 也可以用 Android Studio 打开项目直接 Run。
 
----
-
-## 项目结构
+### 项目结构
 
 ```text
 ding_badminton/
@@ -282,20 +284,15 @@ ding_badminton/
 - `data/submit/PayloadBuilder`：把场地与时段转换为提交结构；
 - `ui/BookingViewModel`：串联登录、配置与运行状态。
 
-## 技术栈
+### 技术栈
 
 Kotlin 1.9 · Jetpack Compose (Material 3) · Navigation Compose · ViewModel · DataStore · OkHttp · AlarmManager
 
-## 隐私与安全
-
-- 应用不会上传账号、密码或凭证到任何第三方服务器，所有请求只发往预约系统；
-- `user-token` 与接口参数保存在本机 DataStore，不会提交到仓库；
-- 仓库不包含签名密钥、`local.properties` 或真实登录票据；
-- 抓包参数具有时效性，请勿公开包含 `user-token` 的截图或日志。
-
-## 开发与发布
+### 发布
 
 APK 通过 GitHub Releases 分发，签名、Secrets 与发布流程见 [docs/RELEASING.md](docs/RELEASING.md)。
+
+---
 
 ## License
 
