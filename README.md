@@ -23,6 +23,24 @@
 
 ---
 
+## 辅助工具：Reqable
+
+抓取登录参数需要用到 **Reqable**（HTTP / HTTPS 抓包工具）。本项目不内置安装包，请从官方渠道下载：
+
+| 平台 | 下载 |
+| --- | --- |
+| Android | [Google Play](https://play.google.com/store/apps/details?id=com.reqable.android) · [arm64 APK 直链](https://app.reqable.com/download?platform=android&arch=arm64&ext=apk) |
+| macOS | [Apple Silicon](https://app.reqable.com/download?platform=macos&arch=arm64&ext=dmg) · [Intel](https://app.reqable.com/download?platform=macos&arch=x86_64&ext=dmg) |
+| Windows / Linux | [官网下载页](https://reqable.com/zh-CN/download/) |
+
+- 免费版即可满足抓包需求；
+- 安装后按提示安装并信任 HTTPS 证书；
+- 具体抓取步骤见下文「2. 获取登录参数」。
+
+> Reqable 是第三方软件，与本项目无关联；请以官网版本为准，不要从第三方渠道下载。
+
+---
+
 ## 功能
 
 **登录与参数**
@@ -63,7 +81,7 @@
 
 ### 2. 获取登录参数
 
-登录需要三个值，全部来自预约系统的真实请求：
+先安装 Reqable（下载地址见上文「辅助工具：Reqable」）。登录需要三个值，全部来自预约系统的真实请求：
 
 | 参数 | 来源 |
 | --- | --- |
@@ -175,7 +193,7 @@
 | 系统 | Android 7.0（API 24）及以上，targetSdk 34 |
 | 网络 | 可访问预约系统 |
 | 构建 | Android Studio（Ladybug 及以上）或命令行 Gradle；JDK 17 |
-| 抓包（首次） | Reqable 或同类 HTTPS 抓包工具 |
+| 抓包（首次） | [Reqable](https://reqable.com/zh-CN/download/) 或同类 HTTPS 抓包工具 |
 
 ---
 
