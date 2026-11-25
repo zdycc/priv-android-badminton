@@ -1,8 +1,8 @@
 # ding_badminton · 某校园羽毛球场地预约助手
 
 一个用 **Kotlin + Jetpack Compose** 编写的 Android 客户端，把某校园场馆预约的整套流程收进手机：
-提前保存登录凭证，选好校区 / 日期 / 场地 / 时段，应用会在开放时间（北京时间 **07:00:05**）自动提交预约，
-失败按规则重试，并实时展示当前阶段与最终结果。
+提前保存登录凭证，选好校区 / 日期 / 场地 / 时段，应用会在开放时间（北京时间 **07:00:05**）自动提交，
+失败按规则重试，并实时展示当前阶段与结果。
 
 [![最新版本](https://img.shields.io/github/v/release/zdycc/priv-android-badminton?label=release)](https://github.com/zdycc/priv-android-badminton/releases/latest)
 
@@ -14,106 +14,77 @@
 
 ## 下载安装
 
-- **最新版 APK**：[GitHub Releases](https://github.com/zdycc/priv-android-badminton/releases/latest)
-- 首次安装时系统会提示「未知来源应用」，允许安装即可。
-- 每个 Release 附带 `SHA256SUMS.txt`，下载后可校验：
-
-  ```bash
-  shasum -a 256 Badminton-*.apk
-  ```
-
----
-
-## 功能特性
-
-- **登录凭证本地保存**：一次抓取，长期复用；凭证只存在本机。
-- **可视化参数配置**：校区、日期、场地号、时段全部点选，自动校验范围。
-- **开放时间自动计算**：按「今天 / 明天 / 后天」推算 07:00:05（北京时间）。
-- **到点自动提交**：倒计时结束自动发起预约，无需人工点击。
-- **失败分类重试**：可重试错误每 60 秒重试一次，最多 10 次；不可重试错误立即停止并说明原因。
-- **状态全程可见**：等待开放、提交中、重试倒计时、成功 / 失败都有明确提示。
-- **任务持久化**：已启动的任务会保存，重新打开应用可自动恢复。
-- **定时闹钟**：通过 `AlarmManager.setExactAndAllowWhileIdle` 在开放时刻唤醒应用。
-- **不依赖电脑**：纯移动端运行，不需要 `ui_server.py`、Playwright 或浏览器自动化。
-
----
-
-## 环境要求
-
-| 项目 | 要求 |
+| 项目 | 说明 |
 | --- | --- |
-| 系统 | Android 7.0（API 24）及以上，targetSdk 34 |
-| 网络 | 可访问某校园场馆预约系统 |
-| 构建 | Android Studio（Ladybug 及以上）或命令行 Gradle；JDK 17 |
-| 抓包（首次） | Reqable（或同类 HTTPS 抓包工具） |
+| 最新版 APK | [GitHub Releases](https://github.com/zdycc/priv-android-badminton/releases/latest) |
+| 系统要求 | Android 7.0（API 24）及以上 |
+| 安装 | 首次安装时允许「未知来源应用」即可 |
+| 校验 | Release 附带 `SHA256SUMS.txt`，可执行 `shasum -a 256 Badminton-*.apk` |
 
 ---
 
-## 构建与安装
+## 功能
 
-```bash
-git clone https://github.com/zdycc/priv-android-badminton.git
-cd priv-android-badminton
-```
+**登录与参数**
 
-在项目根目录创建 `local.properties`（不要提交到仓库）：
+- 登录凭证（`user-token` 与两个接口参数）保存在本机，一次抓取长期复用。
+- 登录页内置 Reqable 抓包指引，三步填写并自动校验。
+- 抓包参数不写入代码仓库。
 
-```properties
-sdk.dir=/Users/<你>/Library/Android/sdk
+**预约配置**
 
-# 可选：登录入口地址。CAS ticket 是一次性凭证，仓库里不保存。
-# 不填则默认打开 预约网址
-# login.entryUrl=http://预约网址/h5/open?ticket=<你的 ticket>
-```
+- 校区、日期、场地号、时段全部点选，自动校验取值范围。
+- 支持「今天 / 明天 / 后天」三个日期，自动计算 07:00:05 的开放时刻。
+- 时段支持 1–2 个，选两个时必须是相邻时段。
 
-构建：
+**执行与反馈**
 
-```bash
-./gradlew assembleDebug      # 产物：app/build/outputs/apk/debug/app-debug.apk
-./gradlew assembleRelease    # 需要自备签名配置
-```
+- 倒计时结束自动提交，无需人工点击。
+- 可重试错误每 60 秒重试，最多 10 次；不可重试错误立即停止并说明原因。
+- 运行页实时显示状态、尝试次数、失败原因与下次重试倒计时。
+- 结果页展示成功 / 失败、尝试次数和预约信息。
+- 任务持久化，重新打开应用可恢复；支持手动停止与取消。
 
-也可以直接用 Android Studio 打开项目，点击 Run 安装到手机。
+**其他**
 
-> 仓库不包含签名文件（`.jks`）与 `local.properties`，release 包请使用你自己的 keystore。
+- 通过 `AlarmManager.setExactAndAllowWhileIdle` 在开放时刻唤醒应用。
+- 纯移动端运行，不依赖电脑、Playwright 或浏览器自动化。
 
 ---
 
-## 使用教程
+## 使用流程
 
-### 第 0 步：安装与权限
+### 1. 安装与权限
 
 1. 安装 APK 并打开应用。
-2. Android 12 及以上，在「设置 → 应用 → 特殊权限 → **闹钟和提醒**」中允许本应用，否则定时唤醒可能不生效。
-3. 在「设置 → 电池」中把本应用设为**不受限制 / 允许后台活动**，避免到点时被系统冻结。
-4. 建议在开放前 1–2 分钟把应用**留在前台**（部分系统会限制后台启动界面）。
+2. Android 12 及以上，在「设置 → 应用 → 特殊权限 → **闹钟和提醒**」中允许本应用。
+3. 在「设置 → 电池」中把应用设为**不受限制 / 允许后台活动**。
+4. 开放前 1–2 分钟建议把应用**留在前台**，避免系统限制后台启动界面。
 
-### 第 1 步：获取登录参数（Reqable 抓包）
+### 2. 获取登录参数
 
-登录页需要三个值，全部来自预约系统的真实请求：
+登录需要三个值，全部来自预约系统的真实请求：
 
 | 参数 | 来源 |
 | --- | --- |
 | `user-token` | `getIndexByStaff` 请求的**请求头** |
-| 场地参数 | `getVenueLstByStaff` 请求的**请求体**（完整 JSON，通常形如 `{"params":"..."}`） |
+| 场地参数 | `getVenueLstByStaff` 请求的**请求体**（完整 JSON） |
 | 提交参数 | `submitVenueOrderByStaff` 请求的**请求体**（完整 JSON） |
 
 抓取步骤：
 
-1. **开启开发者模式**：设置 → 关于手机 → 连续点击版本号约 7 次；进入「开发者选项」开启 USB 调试（部分机型还需允许安装证书）。
-2. **打开预约入口**：用系统浏览器打开预约系统并完成登录。登录页内的「Reqable 抓包教程」提供了入口链接。
-3. **配置 Reqable**：手机安装 Reqable → 启动抓包 → 按提示安装并信任证书 → 抓取 HTTPS 流量。
-4. **过滤接口**：在 Reqable 过滤框输入 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
+1. **开启开发者模式**：设置 → 关于手机 → 连续点击版本号约 7 次，进入「开发者选项」开启 USB 调试。
+2. **打开预约入口**：用系统浏览器打开预约系统并完成登录。
+3. **配置 Reqable**：手机安装 Reqable → 启动抓包 → 安装并信任证书 → 抓取 HTTPS 流量。
+4. **过滤接口**：在 Reqable 中搜索 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
 5. **取值**：
-   - 点开 `getIndexByStaff` → 请求头 → 复制 `user-token` 的值；
-   - 点开 `getVenueLstByStaff` → 请求体 → 复制完整 JSON；
-   - 点开 `submitVenueOrderByStaff` → 请求体 → 复制完整 JSON。
-6. **粘贴**：登录页每个标题右侧的「⧉」可复制接口关键词，输入框右侧的「📋」可一键粘贴剪贴板内容。
-   粘贴后检查是否有多余空格、是否缺大括号。
+   - `getIndexByStaff` → 请求头 → 复制 `user-token` 的值；
+   - `getVenueLstByStaff` → 请求体 → 复制完整 JSON；
+   - `submitVenueOrderByStaff` → 请求体 → 复制完整 JSON。
 
-> 建议登录后不要频繁刷新页面，避免 ticket 失效导致会话不一致。
+> 登录后不要频繁刷新页面，避免 ticket 失效导致会话不一致。
 
-### 第 2 步：登录页填写与校验
+### 3. 登录页填写与校验
 
 登录页分三步：**登录凭证 → 场地接口参数 → 提交接口参数**。
 
@@ -123,63 +94,35 @@ sdk.dir=/Users/<你>/Library/Android/sdk
 
 校验会调用 `getIndexByStaff` 验证登录态：
 
-- 校验通过 → 进入参数配置；
-- 返回 404 / 校验失败 → 检查接口路径是否正确、是否粘贴了过期会话的参数；
-- JSON 格式错误 → 必须粘贴**完整请求体**，不能只粘贴 `params` 字符串。
+- 通过 → 进入参数配置；
+- 404 / 校验失败 → 检查接口路径，或重新抓取一份新的会话参数；
+- JSON 无效 → 必须粘贴完整请求体，不能只粘 `params` 字符串。
 
-### 第 3 步：选择校区
+每个输入框右侧的「📋」可一键粘贴剪贴板内容；标题右侧的「⧉」可复制接口关键词。
 
-- **pf校区**：小馆羽毛球场，场地号 1–6；
-- **mgs校区**：羽毛球馆，场地号 1–9。
+### 4. 配置预约
 
-选择后点「下一步」。
+1. **选择校区**：点选后进入下一步。
+2. **选择日期**：今天 / 明天 / 后天。
+3. **选择场地与时段**：场地号需在当前校区范围内；时段 1–2 个，选两个时必须相邻。
+4. 确认信息后点「**启动预约任务**」。
 
-### 第 4 步：选择日期
+### 5. 倒计时与执行
 
-只支持三个选项：
+- 应用显示开放时间与倒计时，同时注册系统闹钟；
+- 到点自动提交，无需人工点击；
+- 运行页显示当前状态、尝试次数、失败原因、下次重试倒计时；
+- 可重试失败每 60 秒重试一次，最多 10 次；
+- 不可重试失败立即停止并进入结果页；
+- 点「停止」可手动结束任务。
 
-- **今天**：当天 07:00:05 开放；
-- **明天**：当天 07:00:05 开放；
-- **后天**：次日 07:00:05 开放。
+### 6. 结果、恢复与取消
 
-### 第 5 步：选择场地号与时段
-
-- 场地号必须落在当前校区范围内；
-- 时段至少选 1 个、最多选 2 个；
-- 选 2 个时必须是**相邻时段**，否则会提示重新选择。
-
-### 第 6 步：启动任务与倒计时
-
-确认信息后点「**启动预约任务**」：
-
-- 应用显示开放时间与倒计时；
-- 同时注册系统闹钟，到点自动唤醒并提交；
-- 倒计时结束后**无需人工点击**。
-
-### 第 7 步：运行、重试与停止
-
-运行页会显示：当前状态、尝试次数、失败原因、下次重试倒计时。
-
-- 可重试失败：每 **60 秒**重试一次，最多 **10 次**；
-- 不可重试失败：立即停止并进入结果页；
-- 点击「停止」可手动结束任务。
-
-### 第 8 步：查看结果
-
-结果页显示：
-
-- 成功 / 失败；
-- 尝试次数（x / 10）；
-- 失败原因；
-- 预约信息（校区 / 场地号 / 时段）。
-
-点「确定并返回登录页面」回到首页。
-
-### 任务恢复与取消
-
-- 已启动的任务会保存，重新打开应用会自动恢复到倒计时页；
-- 在任务列表中取消预约会**永久删除**该任务，请谨慎操作；
-- 若已存在计时任务，再次选择日期时会提示「您已经有一个计时预约了，不可再次选中」。
+- 结果页显示成功 / 失败、尝试次数（x / 10）、失败原因、预约信息；
+- 点「确定并返回登录页面」回到首页；
+- 已启动的任务会保存，重新打开应用自动恢复到倒计时页；
+- 在任务列表中取消预约会**永久删除**该任务；
+- 已存在计时任务时，再次选择日期会提示「您已经有一个计时预约了，不可再次选中」。
 
 ---
 
@@ -214,44 +157,71 @@ sdk.dir=/Users/<你>/Library/Android/sdk
 
 ## 常见问题
 
-**抓不到请求？**
-确认 Reqable 正在运行，且手机网络流量确实经过它；HTTPS 需要安装并信任证书。
+| 现象 | 处理 |
+| --- | --- |
+| 抓不到请求 | 确认 Reqable 正在运行、流量确实经过它，HTTPS 证书已信任 |
+| 校验返回 404 | 检查接口路径，或重新抓取一份新会话参数 |
+| 提示 JSON 无效 | 粘贴完整请求体（含外层 `{ "params": ... }`），不要只复制值 |
+| 到点没有自动提交 | 检查「闹钟和提醒」权限、电池优化、后台限制；开放前把应用留在前台 |
+| 提示登录失效 | 重新抓取 `user-token` 与两个接口参数，重新保存并校验 |
+| 构建失败 | 确认 JDK 17、`local.properties` 的 `sdk.dir` 正确，首次构建需联网下载依赖 |
 
-**校验返回 404？**
-检查接口路径是否正确，或重新抓取一份新的会话参数（旧参数可能已过期）。
+---
 
-**提示 JSON 无效？**
-必须粘贴完整的请求体（包含外层 `{ "params": ... }`），不能只复制 `params` 的值。
+## 环境要求
 
-**到点没有自动提交？**
-- 确认「闹钟和提醒」权限已开启；
-- 关闭电池优化 / 允许后台活动；
-- 开放前把应用留在前台，避免系统限制后台启动界面；
-- 检查是否被其他省电策略清理。
+| 项目 | 要求 |
+| --- | --- |
+| 系统 | Android 7.0（API 24）及以上，targetSdk 34 |
+| 网络 | 可访问预约系统 |
+| 构建 | Android Studio（Ladybug 及以上）或命令行 Gradle；JDK 17 |
+| 抓包（首次） | Reqable 或同类 HTTPS 抓包工具 |
 
-**提示登录失效？**
-重新抓取 `user-token` 与两个接口参数，在登录页重新保存并校验。
+---
 
-**构建失败？**
-确认使用 JDK 17；`local.properties` 中 `sdk.dir` 指向本机 Android SDK；首次构建需要联网下载依赖。
+## 构建
+
+```bash
+git clone https://github.com/zdycc/priv-android-badminton.git
+cd priv-android-badminton
+```
+
+在项目根目录创建 `local.properties`（不要提交）：
+
+```properties
+sdk.dir=/Users/<你>/Library/Android/sdk
+
+# 可选：登录入口地址，CAS ticket 是一次性凭证，仓库里不保存
+# login.entryUrl=https://<预约系统>/h5/open?ticket=<你的 ticket>
+```
+
+构建：
+
+```bash
+./gradlew assembleDebug      # app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleRelease    # 需要签名配置，见 docs/RELEASING.md
+```
+
+也可以用 Android Studio 打开项目直接 Run。
 
 ---
 
 ## 项目结构
 
-```
+```text
 ding_badminton/
-├── app/
-│   └── src/main/
-│       ├── java/com/example/ding_badminton/
-│       │   ├── alarm/            # 定时闹钟
-│       │   ├── data/             # 本地存储、网络、提交链路
-│       │   ├── domain/           # 业务规则、调度器、失败分类
-│       │   └── ui/               # Compose 界面与 ViewModel
-│       ├── res/                  # 资源与主题
-│       └── AndroidManifest.xml
-├── docs/migration/               # 从原桌面版迁移的设计文档
-├── gradle/                       # 版本目录与 wrapper
+├── app/src/main/
+│   ├── java/com/example/ding_badminton/
+│   │   ├── alarm/            # 定时闹钟
+│   │   ├── data/             # 本地存储、网络、提交链路
+│   │   ├── domain/           # 业务规则、调度器、失败分类
+│   │   └── ui/               # Compose 界面与 ViewModel
+│   ├── res/                  # 资源与主题
+│   └── AndroidManifest.xml
+├── docs/
+│   ├── migration/            # 从原桌面版迁移的设计文档
+│   └── RELEASING.md          # 签名与发布说明
+├── gradle/                   # 版本目录与 wrapper
 ├── build.gradle.kts
 ├── settings.gradle.kts
 └── README.md
@@ -262,23 +232,19 @@ ding_badminton/
 - `domain/usecase/BookingScheduler`：等待开放 → 提交 → 重试的主循环；
 - `domain/usecase/BookingTimeCalculator`：按日期偏移计算开放时刻；
 - `domain/usecase/FailureClassifier`：把接口返回归类为可重试 / 不可重试；
-- `data/submit/PayloadBuilder`：把选中的场地与时段转换为提交结构；
-- `ui/BookingViewModel`：串联登录、配置、运行状态。
+- `data/submit/PayloadBuilder`：把场地与时段转换为提交结构；
+- `ui/BookingViewModel`：串联登录、配置与运行状态。
 
 ## 技术栈
 
-- Kotlin 1.9 / Jetpack Compose（Material 3）
-- Navigation Compose、ViewModel、DataStore
-- OkHttp
-- AlarmManager（精确闹钟）
-- Gradle 版本目录（`gradle/libs.versions.toml`）
+Kotlin 1.9 · Jetpack Compose (Material 3) · Navigation Compose · ViewModel · DataStore · OkHttp · AlarmManager
 
 ## 隐私与安全
 
-- 应用**不会上传**账号、密码或凭证到任何第三方服务器；所有请求只发往预约系统。
-- `user-token` 与接口参数保存在本机 DataStore 中，不会提交到本仓库。
-- 仓库不包含签名密钥、`local.properties` 或任何真实登录票据。
-- 抓包参数具有时效性，请勿把包含 `user-token` 的截图或日志公开发布。
+- 应用不会上传账号、密码或凭证到任何第三方服务器，所有请求只发往预约系统；
+- `user-token` 与接口参数保存在本机 DataStore，不会提交到仓库；
+- 仓库不包含签名密钥、`local.properties` 或真实登录票据；
+- 抓包参数具有时效性，请勿公开包含 `user-token` 的截图或日志。
 
 ## 开发与发布
 
