@@ -10,6 +10,18 @@
 
 ---
 
+## 下载安装
+
+- **最新版 APK**：[GitHub Releases](https://github.com/zdycc/priv-android-badminton/releases/latest)
+- 首次安装时系统会提示「未知来源应用」，允许安装即可。
+- 每个 Release 附带 `SHA256SUMS.txt`，下载后可校验：
+
+  ```bash
+  shasum -a 256 Badminton-*.apk
+  ```
+
+---
+
 ## 功能特性
 
 - **登录凭证本地保存**：一次抓取，长期复用；凭证只存在本机。
@@ -265,6 +277,45 @@ ding_badminton/
 - `user-token` 与接口参数保存在本机 DataStore 中，不会提交到本仓库。
 - 仓库不包含签名密钥、`local.properties` 或任何真实登录票据。
 - 抓包参数具有时效性，请勿把包含 `user-token` 的截图或日志公开发布。
+
+## 发布新版本（维护者）
+
+APK 通过 **GitHub Releases** 分发，不提交进仓库。
+
+1. 修改 `app/build.gradle.kts` 中的 `versionCode` / `versionName`；
+2. 提交后打 tag 并推送：
+
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+3. `.github/workflows/release.yml` 会自动构建签名 APK，创建 Release 并上传
+   `Badminton-v1.0.0.apk` 与 `SHA256SUMS.txt`。
+
+首次发布前，在仓库 **Settings → Secrets and variables → Actions** 添加：
+
+| Secret | 内容 |
+| --- | --- |
+| `KEYSTORE_BASE64` | keystore 文件的 base64 |
+| `KEYSTORE_PASSWORD` | keystore 密码 |
+| `KEY_ALIAS` | key 别名 |
+| `KEY_PASSWORD` | key 密码 |
+
+本地生成 keystore（只做一次，务必备份，不要提交）：
+
+```bash
+keytool -genkeypair -v -keystore keystore.jks -alias badminton \
+  -keyalg RSA -keysize 2048 -validity 10000
+base64 -i keystore.jks | pbcopy    # macOS：粘贴到 KEYSTORE_BASE64
+```
+
+本地构建签名包：
+
+```bash
+KEYSTORE_FILE=keystore.jks KEYSTORE_PASSWORD=... KEY_ALIAS=badminton KEY_PASSWORD=... \
+  ./gradlew assembleRelease
+```
 
 ## License
 
