@@ -23,21 +23,50 @@
 
 ---
 
-## 辅助工具：Reqable
+## 辅助工具：Reqable（Android）
 
-抓取登录参数需要用到 **Reqable**（HTTP / HTTPS 抓包工具）。本项目不内置安装包，请从官方渠道下载：
+抓取登录参数需要用到 **Reqable**。本项目只涉及 Android 端，下载方式：
 
-| 平台 | 下载 |
+| 渠道 | 链接 |
 | --- | --- |
-| Android | [Google Play](https://play.google.com/store/apps/details?id=com.reqable.android) · [arm64 APK 直链](https://app.reqable.com/download?platform=android&arch=arm64&ext=apk) |
-| macOS | [Apple Silicon](https://app.reqable.com/download?platform=macos&arch=arm64&ext=dmg) · [Intel](https://app.reqable.com/download?platform=macos&arch=x86_64&ext=dmg) |
-| Windows / Linux | [官网下载页](https://reqable.com/zh-CN/download/) |
+| Google Play | https://play.google.com/store/apps/details?id=com.reqable.android |
+| arm64 APK（大多数手机） | https://app.reqable.com/download?platform=android&arch=arm64&ext=apk |
+| armeabi-v7a APK（老设备） | https://app.reqable.com/download?platform=android&arch=arm&ext=apk |
 
-- 免费版即可满足抓包需求；
-- 安装后按提示安装并信任 HTTPS 证书；
-- 具体抓取步骤见下文「2. 获取登录参数」。
+> 官网：<https://reqable.com/zh-CN/android/>。免费社区版即可满足抓包需求。
+> Reqable 是第三方软件，与本项目无关联；请从官网或 Google Play 下载，不要使用第三方渠道的安装包。
 
-> Reqable 是第三方软件，与本项目无关联；请以官网版本为准，不要从第三方渠道下载。
+### 安装并开始抓包
+
+1. 安装并打开 Reqable。
+2. 首次启动会请求 **VPN 权限**（Reqable 通过本地 VPN 捕获流量），选择允许。
+3. 进入「抓包」页，点击开始；在过滤框输入 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
+4. 用系统浏览器打开预约系统并完成登录，正常操作一遍。
+5. 回到 Reqable，在请求列表中查看对应接口的请求头 / 请求体。
+
+### 安装 CA 证书（可选）
+
+本项目的三个参数都来自 **HTTP** 接口，**不安装证书也能抓到**；只有需要查看 HTTPS 登录跳转（如 CAS 登录页）时才需要安装。
+
+1. 在 Reqable 内打开「证书 / 安装证书」，选择 **Android**，按应用内指引导出或保存 CA 证书。
+2. 打开系统设置 → **安全**（部分机型为「安全与隐私」）→ **加密与凭据** → **安装证书** → **CA 证书**。
+3. 选择 Reqable 导出的证书文件，确认安装（需要锁屏密码 / 指纹验证）。
+4. 验证：设置 → 安全 → 加密与凭据 → **信任的凭据** → 切到「**用户**」标签，能看到 Reqable 即可。
+
+不同品牌的路径略有差异，可以直接在设置里搜索「CA 证书」或「安装证书」。
+
+> **注意**
+> - Android 7.0 及以上默认只信任系统证书，普通 App 不一定信任用户安装的证书；Chrome 新版本也可能忽略用户证书。抓不到 HTTPS 时，先确认目标接口本身是不是 HTTP。
+> - 抓包完成后建议删除证书：信任的凭据 → 用户 → Reqable → 删除，避免长期保留降低设备安全性。
+
+### 抓包常见问题
+
+| 现象 | 处理 |
+| --- | --- |
+| 无法开始抓包 | VPN 权限被拒绝，到系统设置中允许 Reqable 使用 VPN |
+| 请求列表为空 | 确认 Reqable 正在运行、过滤条件正确、浏览器流量确实经过 VPN |
+| HTTPS 只显示 CONNECT | 证书未安装或未被信任；本项目主要接口为 HTTP，可先不处理 |
+| 找不到「安装证书」 | 在设置中搜索「CA 证书」「加密与凭据」，或查看 Reqable 应用内指引 |
 
 ---
 
