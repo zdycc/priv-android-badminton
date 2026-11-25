@@ -1,50 +1,53 @@
-# ding_badminton
+<div align="center">
 
-**某校园羽毛球场地预约助手** · Android
+<h1>ding_badminton</h1>
 
-提前保存登录凭证，选好校区、日期、场地和时段，应用会在开放时间（北京时间 07:00:05）自动提交，失败按规则重试。
+<p>某校园羽毛球场地预约助手 · Android</p>
 
-[下载最新版](https://github.com/zdycc/priv-android-badminton/releases/latest) ·
-[发布记录](https://github.com/zdycc/priv-android-badminton/releases) ·
-[MIT License](LICENSE)
+<p>
+  <a href="https://github.com/zdycc/priv-android-badminton/releases/latest"><img src="https://img.shields.io/github/v/release/zdycc/priv-android-badminton?label=release" alt="release"></a>
+  <img src="https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white" alt="Android">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/zdycc/priv-android-badminton" alt="license"></a>
+</p>
+
+<p>
+  <a href="https://github.com/zdycc/priv-android-badminton/releases/latest">下载最新版</a> ·
+  <a href="https://github.com/zdycc/priv-android-badminton/releases">发布记录</a> ·
+  <a href="https://github.com/zdycc/priv-android-badminton/issues">反馈问题</a>
+</p>
+
+</div>
 
 > 仅用于个人学习与效率实践。请遵守学校场馆预约规定，不要用于代抢、倒卖等用途，使用后果由使用者自行承担。
 
 ## 功能
 
-- **登录一次，长期复用**：`user-token` 与两个接口参数保存在本机，不写入代码仓库。
+- **一次登录，长期复用**：`user-token` 与两个接口参数保存在本机。
 - **点选式配置**：校区、日期、场地号、时段全部可视化选择，自动校验范围。
-- **到点自动提交**：按「今天 / 明天 / 后天」计算开放时刻，倒计时结束自动发起预约。
-- **失败自动重试**：可重试错误每 60 秒重试，最多 10 次；不可重试错误立即停止并说明原因。
-- **状态全程可见**：等待开放、提交、重试、成功 / 失败都有明确展示。
+- **到点自动提交**：按「今天 / 明天 / 后天」计算开放时刻，倒计时结束自动发起。
+- **失败自动重试**：可重试错误每 60 秒一次，最多 10 次；不可重试错误立即停止。
+- **状态全程可见**：等待、提交、重试、成功 / 失败都有明确展示。
 - **任务可恢复**：已启动的任务会保存，重新打开应用自动恢复。
 
-## 下载安装
+## 使用流程
 
-| 项目 | 说明 |
+> 安装应用 → 安装 Reqable → 安装证书 → 抓取参数 → 登录校验 → 配置预约 → 启动任务 → 查看结果
+
+### 1. 安装应用
+
+从 [Releases](https://github.com/zdycc/priv-android-badminton/releases/latest) 下载 APK（Android 7.0 及以上），允许「未知来源应用」后安装。
+
+首次打开请授予以下权限，并建议在开放前 1–2 分钟把应用留在前台：
+
+| 权限 | 用途 |
 | --- | --- |
-| 最新版本 | [GitHub Releases](https://github.com/zdycc/priv-android-badminton/releases/latest) |
-| 系统要求 | Android 7.0（API 24）及以上 |
-| 安装方式 | 下载 APK，允许「未知来源应用」后安装 |
-| 完整性校验 | Release 附带 `SHA256SUMS.txt`，可执行 `shasum -a 256 Badminton-*.apk` |
+| 闹钟和提醒 | 在 07:00:05 精确唤醒（Android 12+） |
+| 后台运行 / 电池优化 | 避免到点被系统冻结 |
+| 通知 | 展示运行状态 |
 
-## 快速开始
+### 2. 安装 Reqable
 
-1. **装好应用**：安装 APK，允许通知、精确闹钟和后台运行（见「权限」）。
-2. **准备登录参数**：用 Reqable 抓取 `user-token` 和两个接口 JSON（见「登录参数」）。
-3. **开始预约**：登录校验 → 选择校区、日期、场地、时段 → 启动任务 → 等待结果。
-
-## 登录参数
-
-登录页需要三个值，全部来自预约系统的真实请求：
-
-| 参数 | 位置 |
-| --- | --- |
-| `user-token` | `getIndexByStaff` 请求头 |
-| 场地参数 | `getVenueLstByStaff` 请求体（完整 JSON） |
-| 提交参数 | `submitVenueOrderByStaff` 请求体（完整 JSON） |
-
-### 安装 Reqable（Android）
+抓取登录参数需要 Android 版 **Reqable**，免费社区版即可：
 
 | 渠道 | 链接 |
 | --- | --- |
@@ -52,72 +55,71 @@
 | arm64 APK（多数手机） | [下载](https://app.reqable.com/download?platform=android&arch=arm64&ext=apk) |
 | armeabi-v7a APK（老设备） | [下载](https://app.reqable.com/download?platform=android&arch=arm&ext=apk) |
 
-官网：[reqable.com/zh-CN/android](https://reqable.com/zh-CN/android/)。免费社区版即可满足抓包需求。
+官网：[reqable.com/zh-CN/android](https://reqable.com/zh-CN/android/)。Reqable 是第三方软件，与本项目无关。
 
-> Reqable 是第三方软件，与本项目无关；请从官网或 Google Play 下载。
+### 3. 安装 CA 证书
 
-### 抓取参数
+Reqable 通过中间人方式解密 HTTPS，**必须在开始抓包之前装好证书**，否则 HTTPS 请求只会显示为一条 `CONNECT` 隧道，看不到内容。
 
-1. 打开 Reqable，允许 **VPN 权限**，进入「抓包」页开始抓包。
-2. 过滤框输入 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
-3. 用系统浏览器打开预约系统并完成登录，正常操作一遍。
-4. 回到 Reqable，分别从请求头和请求体中复制三个参数。
+1. 打开 Reqable，进入「证书 / 安装证书」→ 选择 **Android** → 导出并保存 CA 证书。
+2. 打开系统设置 → **安全**（部分机型为「安全与隐私」）→ **加密与凭据** → **安装证书** → **CA 证书**。
+3. 选择刚导出的证书文件，确认安装（需要锁屏密码或指纹）。
+4. 验证：设置 → 安全 → 加密与凭据 → **信任的凭据** →「**用户**」标签中出现 Reqable 即成功。
+
+> 不同品牌的路径略有差异，可直接在设置中搜索「CA 证书」或「安装证书」。
+>
+> Android 7.0 及以上默认只信任系统证书，部分应用和 Chrome 新版本可能忽略用户证书；抓包结束后建议删除证书（信任的凭据 → 用户 → Reqable → 删除）。
+
+### 4. 抓取登录参数
+
+证书装好后，再开始抓包：
+
+1. 打开 Reqable，进入「抓包」页，允许 **VPN 权限** 并开始抓包。
+2. 在过滤框输入 `getIndexByStaff`、`getVenueLstByStaff`、`submitVenueOrderByStaff`。
+3. 用系统浏览器打开预约系统，完成登录并进入场馆预约页面，正常操作一遍。
+4. 回到 Reqable，复制三个参数：
+
+| 参数 | 位置 |
+| --- | --- |
+| `user-token` | `getIndexByStaff` 请求头 |
+| 场地参数 | `getVenueLstByStaff` 请求体（完整 JSON） |
+| 提交参数 | `submitVenueOrderByStaff` 请求体（完整 JSON） |
 
 > 登录后不要频繁刷新页面，避免 ticket 失效导致会话不一致。
 
-<details>
-<summary><b>安装 CA 证书（可选）</b></summary>
+### 5. 登录校验
 
-本项目的三个参数都来自 **HTTP** 接口，不装证书也能抓取；只有需要查看 HTTPS 登录跳转时才需要。
+登录页分三步填写，每步点「下一步」，最后点「保存并校验」：
 
-1. Reqable →「证书 / 安装证书」→ Android → 导出或保存 CA 证书。
-2. 系统设置 → 安全（或「安全与隐私」）→ 加密与凭据 → 安装证书 → **CA 证书**。
-3. 选择证书文件并确认安装（需要锁屏密码或指纹）。
-4. 验证：信任的凭据 →「用户」标签中能看到 Reqable。
+1. `user-token`；
+2. 场地接口 JSON；
+3. 提交接口 JSON。
 
-注意：Android 7.0 及以上默认只信任系统证书，部分应用和 Chrome 新版本可能不信任用户证书。抓包结束后建议删除证书（信任的凭据 → 用户 → Reqable → 删除）。
+校验通过后进入参数配置。若提示 404，检查接口路径或重新抓取；若提示 JSON 无效，确认粘贴的是完整请求体，而不是只复制 `params` 的值。
 
-</details>
+### 6. 配置预约
 
-## 使用
+1. 选择**校区**；
+2. 选择**日期**（今天 / 明天 / 后天）；
+3. 选择**场地号**与**时段**（1–2 个，选两个时必须相邻）；
+4. 确认信息后点「**启动预约任务**」。
 
-### 登录校验
+### 7. 启动任务与等待
 
-1. 粘贴 `user-token`，点「下一步」；
-2. 粘贴场地接口 JSON，点「下一步」；
-3. 粘贴提交接口 JSON，点「保存并校验」。
-
-校验通过后进入参数配置；返回 404 时检查接口路径或重新抓取会话参数；提示 JSON 无效时需粘贴完整请求体。
-
-### 配置预约
-
-1. 选择校区；
-2. 选择日期（今天 / 明天 / 后天）；
-3. 选择场地号与时段（1–2 个，选两个时必须相邻）；
-4. 确认后点「启动预约任务」。
-
-### 等待与结果
-
-- 倒计时期间可查看开放时间与剩余秒数；
+- 应用显示开放时间与倒计时，同时注册系统闹钟；
 - 到点自动提交，无需人工点击；
 - 运行页显示状态、尝试次数、失败原因和下次重试倒计时；
 - 可重试失败每 60 秒重试一次，最多 10 次；
 - 不可重试失败立即停止并进入结果页；
-- 结果页显示成功 / 失败、尝试次数和预约信息。
+- 点「停止」可手动结束任务。
 
-任务启动后会保存，重新打开应用自动恢复；取消任务会永久删除，请谨慎操作。
+### 8. 查看结果
 
-### 权限
+结果页显示成功 / 失败、尝试次数（x / 10）、失败原因和预约信息，点「确定并返回登录页面」回到首页。
 
-| 权限 | 用途 |
-| --- | --- |
-| 闹钟和提醒 | 在 07:00:05 精确唤醒（Android 12+） |
-| 后台运行 / 电池优化 | 避免到点时被系统冻结 |
-| 通知 | 展示运行状态 |
+已启动的任务会保存，重新打开应用自动恢复；取消任务会永久删除，请谨慎操作。
 
-建议在开放前 1–2 分钟把应用留在前台。
-
-## 规则
+## 规则速查
 
 | 校区 | 场馆 | 场地号 | 可选时段 |
 | --- | --- | --- | --- |
