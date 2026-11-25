@@ -48,8 +48,8 @@ cd priv-android-badminton
 sdk.dir=/Users/<你>/Library/Android/sdk
 
 # 可选：登录入口地址。CAS ticket 是一次性凭证，仓库里不保存。
-# 不填则默认打开 http://www.api.zgyy.zjut.edu.cn/h5/home
-# login.entryUrl=http://www.api.zgyy.zjut.edu.cn/h5/open?ticket=<你的 ticket>
+# 不填则默认打开 预约网址
+# login.entryUrl=http://预约网址/h5/open?ticket=<你的 ticket>
 ```
 
 构建：
